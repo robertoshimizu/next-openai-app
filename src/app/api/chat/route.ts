@@ -23,17 +23,8 @@ export async function POST(req: Request) {
 
   // Convert the response into a friendly text-stream
   const stream = OpenAIStream(response, {
-    onStart: async () => {
-      console.log('Stream started')
-    },
-    onCompletion: async (completion: any) => {
-      console.log('Completion completed', completion)
-    },
     onFinal: async (completion: any) => {
       console.log('Stream completed', completion)
-    },
-    onToken: async (token: any) => {
-      console.log('Token received', token)
     }
   })
   // Respond with the stream
