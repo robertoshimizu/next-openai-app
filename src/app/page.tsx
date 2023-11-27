@@ -18,7 +18,7 @@ export default function Chat() {
   function handleFinish() {
     console.log('finished')
     // update messages
-    setMessages(messages)
+    //setMessages(messages)
     console.log(messages)
   }
 

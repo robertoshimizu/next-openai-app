@@ -1,5 +1,6 @@
 // ./app/api/chat/route.ts
 import { kv } from '@vercel/kv'
+
 import OpenAI from 'openai'
 import {
   OpenAIStream,
@@ -37,10 +38,11 @@ export async function POST(req: Request) {
       console.log('messages', messages)
       // IMPORTANT! you must close StreamData manually or the response will never finish.
       data.close()
-      const hsetResponse = await kv.hset(`chat:${Date.now()}`, {
-        message: 'Ola World'
-      })
-      console.log(`HSET response: ${hsetResponse}`)
+
+      // const hsetResponse = await kv.hset(`chat:${Date.now()}`, {
+      //   message: 'Ola World'
+      // })
+      //console.log(`HSET response: ${hsetResponse}`)
     },
     // IMPORTANT! until this is stable, you must explicitly opt in to supporting streamData.
     experimental_streamData: false
