@@ -9,7 +9,41 @@ It seems that using the `kv` library it works. I still do not know why.
 
 ## Experimental Stream
 
-Decouple the stream into roles: 0, 1, 2. See documentation. I left it `false`
+Decouple the stream into roles: 0, 1, 2. See documentation. I left it `false`. You can append data to the messages, etc.
+
+## Decouple `handleSubmit`
+
+Tried to access `data` from the client side. For that, created a wrapper `sendSubmit`, but `data` is undefined. It seems that `useChat` updates the `messages`, which is streamed and displayed in the panel.
+
+```javascript
+const { messages, input, handleInputChange, handleSubmit, data } = useChat()
+
+function sendSubmit(e: FormEvent<HTMLFormElement>) {
+  handleSubmit(e)
+  console.log(data)
+}
+return (
+  <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+    {messages.length > 0
+      ? messages.map((m) => (
+          <div key={m.id} className="whitespace-pre-wrap">
+            {m.role === 'user' ? 'User: ' : 'AI: '}
+            {m.content}
+          </div>
+        ))
+      : null}
+
+    <form onSubmit={sendSubmit}>
+      <input
+        className="fixed bottom-0 w-full max-w-md p-2 mb-8 border border-gray-300 rounded shadow-xl"
+        value={input}
+        placeholder="Say something..."
+        onChange={handleInputChange}
+      />
+    </form>
+  </div>
+)
+```
 
 ## How to use
 

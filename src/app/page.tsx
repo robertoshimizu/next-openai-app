@@ -4,7 +4,23 @@ import { useChat } from 'ai/react'
 import { FormEvent } from 'react'
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, data } = useChat()
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    data,
+    setMessages
+  } = useChat({
+    onFinish: handleFinish
+  })
+
+  function handleFinish() {
+    console.log('finished')
+    // update messages
+    setMessages(messages)
+    console.log(messages)
+  }
 
   function sendSubmit(e: FormEvent<HTMLFormElement>) {
     handleSubmit(e)
