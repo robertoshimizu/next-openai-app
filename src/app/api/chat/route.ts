@@ -1,6 +1,7 @@
 // ./app/api/chat/route.ts
 import OpenAI from 'openai'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
+import { saveChat } from '@/app/actions/redis'
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
   const stream = OpenAIStream(response, {
     onFinal: async (completion: any) => {
       console.log('Stream completed', completion)
+      const res = await saveChat(completion)
     }
   })
   // Respond with the stream
