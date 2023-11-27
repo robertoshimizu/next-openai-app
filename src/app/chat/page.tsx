@@ -1,13 +1,14 @@
-'use client';
+'use client'
 
-import { useChat } from 'ai/react';
+import { useChat } from 'ai/react'
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, data } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, data } = useChat()
+  console.log('data', data)
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
       {messages.length > 0
-        ? messages.map(m => (
+        ? messages.map((m) => (
             <div key={m.id} className="whitespace-pre-wrap">
               {m.role === 'user' ? 'User: ' : 'AI: '}
               {m.content}
@@ -24,5 +25,5 @@ export default function Chat() {
         />
       </form>
     </div>
-  );
+  )
 }

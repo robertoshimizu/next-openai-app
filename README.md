@@ -2,11 +2,14 @@
 
 This example shows how to use the [Vercel AI SDK](https://sdk.vercel.ai/docs) with [Next.js](https://nextjs.org/) and [OpenAI](https://openai.com) to create a ChatGPT-like AI-powered streaming chat bot.
 
-## Deploy your own
+## Persist chat in Redis
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=ai-sdk-example):
+Tried to create a redis client and a function in `@/lib/actions/redis` to save messages, but it seems that the `OpenAIStream` conclicts with the redis client object.
+It seems that using the `kv` library it works. I still do not know why.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai%2Ftree%2Fmain%2Fexamples%2Fnext-openai&env=OPENAI_API_KEY&envDescription=OpenAI%20API%20Key&envLink=https%3A%2F%2Fplatform.openai.com%2Faccount%2Fapi-keys&project-name=vercel-ai-chat-openai&repository-name=vercel-ai-chat-openai)
+## Experimental Stream
+
+Decouple the stream into roles: 0, 1, 2. See documentation. I left it `false`
 
 ## How to use
 

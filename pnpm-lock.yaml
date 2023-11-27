@@ -6,14 +6,14 @@ settings:
 
 dependencies:
   ai:
-    specifier: 2.2.23
-    version: 2.2.23(react@18.2.0)(solid-js@1.8.5)(svelte@4.2.3)(vue@3.3.8)
+    specifier: 2.2.25
+    version: 2.2.25(react@18.2.0)(solid-js@1.8.5)(svelte@4.2.3)(vue@3.3.8)
   next:
     specifier: 14.0.1
     version: 14.0.1(react-dom@18.2.0)(react@18.2.0)
   openai:
-    specifier: 4.16.1
-    version: 4.16.1
+    specifier: 4.20.0
+    version: 4.20.0
   react:
     specifier: 18.2.0
     version: 18.2.0
@@ -574,8 +574,8 @@ packages:
       humanize-ms: 1.2.1
     dev: false
 
-  /ai@2.2.23(react@18.2.0)(solid-js@1.8.5)(svelte@4.2.3)(vue@3.3.8):
-    resolution: {integrity: sha512-pToIoSX7mXy7t8+D8xN6OjlEvtufbY5fPDzoSzf3zR/Z2ajw1rE6d9hOFyKSZ+ZTNdZ1xklabWf21qj2gP1REA==}
+  /ai@2.2.25(react@18.2.0)(solid-js@1.8.5)(svelte@4.2.3)(vue@3.3.8):
+    resolution: {integrity: sha512-iXu3pzPpDPBGDir8hz86FAJmJTynMfBH4V/DXyR3GGeaHOfjdrErlcMm862CSalR6PDMwDOSCQVwJqtdnvIncQ==}
     engines: {node: '>=14.6'}
     peerDependencies:
       react: ^18.2.0
@@ -2396,8 +2396,8 @@ packages:
       wrappy: 1.0.2
     dev: true
 
-  /openai@4.16.1:
-    resolution: {integrity: sha512-Gr+uqUN1ICSk6VhrX64E+zL7skjI1TgPr/XUN+ZQuNLLOvx15+XZulx/lSW4wFEAQzgjBDlMBbBeikguGIjiMg==}
+  /openai@4.20.0:
+    resolution: {integrity: sha512-VbAYerNZFfIIeESS+OL9vgDkK8Mnri55n+jN0UN/HZeuM0ghGh6nDN6UGRZxslNgyJ7XmY/Ca9DO4YYyvrszGA==}
     hasBin: true
     dependencies:
       '@types/node': 18.18.9
