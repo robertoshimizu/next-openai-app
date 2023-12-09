@@ -11,36 +11,7 @@ const openai = new OpenAI({
 // IMPORTANT! Set the runtime to edge
 export const runtime = 'edge'
 
-function parseOStream(): AIStreamParser {
-  let previous = ''
 
-  return (data) => {
-    const json = JSON.parse(data) as {
-      completion: string
-      stop: string | null
-      stop_reason: string | null
-      truncated: boolean
-      log_id: string
-      model: string
-      exception: string | null
-    }
-
-    // Anthropic's `completion` field is cumulative unlike OpenAI's
-    // deltas. In order to compute the delta, we must slice out the text
-    // we previously received.
-    const text = json.completion
-    const delta = text.slice(previous.length)
-    previous = text
-
-    return delta
-  }
-}
-export function OStream(
-  res: Response,
-  cb?: AIStreamCallbacksAndOptions
-): ReadableStream {
-  return AIStream(res, parseOStream(), cb)
-}
 
 export async function POST(req: Request) {
   // Extract the `prompt` from the body of the request
@@ -53,24 +24,33 @@ export async function POST(req: Request) {
     messages: messages
   })
 
-  async function postJSON(data: any) {
-    try {
-      const response = await fetch('http://127.0.0.1:8000/chatcompletion', {
-        method: 'POST', // or 'PUT'
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
+  try {
+    const payload = {
+                      "input": {
+                        "topic": "Snow White"
+                      },
+                      "config": {},
+                      "kwargs": {}
+                    }
 
-      if (!response.ok) {
-        throw new Error(
-          'HTTP status ' + response.status + ' - ' + response.statusText
-        )
-      }
+    const fetchresponse = await fetch('http://127.0.0.1:8000/joke/invoke', {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
 
-      console.log('response', response.url)
+    if (!fetchresponse.ok) {
+      throw new Error(
+        'HTTP status ' + fetchresponse.status + ' - ' + fetchresponse.statusText
+      )
+    }
 
+    console.log('response', fetchresponse.json())
+    console.log(
+        '******************************************************************'
+      )
       //const textResponse = await response.text()
 
       // It is expected a text response from the server
@@ -81,48 +61,24 @@ export async function POST(req: Request) {
       // Convert the response into a friendly text-stream
       //const stream = OStream(response)
       //console.log('stream', stream)
-
-      console.log(
-        '******************************************************************'
-      )
-      // console.log('Success:', result.body)
-      const fastApiStream = OStream(response, {
-        onStart: async () => {
-          console.log('Stream started')
-        },
-        onCompletion: async (completion: any) => {
-          console.log('Completion completed', completion)
-        },
-        onFinal: async (completion: any) => {
-          console.log('Stream completed', completion)
-        },
-        onToken: async (token: any) => {
-          console.log('Token received', token)
-        }
-      })
-      //console.log('fastApiStream', fastApiStream)
-      console.log(
-        '******************************************************************'
-      )
-    } catch (error) {
-      console.error('Error:', error)
+  
+    } catch (err) {
+      console.error(err)
     }
-  }
-  const data = [
-    {
-      role: 'user',
-      content: 'What is the meaning of life?'
-    }
-  ]
-  postJSON(data)
-
   // Convert the response into a friendly text-stream
   const stream = OpenAIStream(response, {
-    onStart: async () => console.log('Starting Carlho stream...'),
-    // onToken: async (token: string) => console.log('Token:', token),
-    onCompletion: async (completion: string) =>
-      // console.log('Stream completed!', completion)
-      console.log('Segunda stream completed!')
+    onStart: async () => {
+      console.log('Stream started')
+    },
+    onCompletion: async (completion: any) => {
+      console.log('Completion completed', completion)
+    },
+    onFinal: async (completion: any) => {
+      console.log('Stream completed', completion)
+    },
+    onToken: async (token: any) => {
+      console.log('Token received', token)
+    }
   })
   // Respond with the stream
   return new StreamingTextResponse(stream)
