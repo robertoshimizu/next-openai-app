@@ -1,7 +1,7 @@
 // ./app/api/chat-with-fastapi/route.ts
 import OpenAI from 'openai'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
-import { AIStream, AIStreamCallbacksAndOptions, AIStreamParser } from 'ai'
+import { RemoteRunnable } from "langchain/runnables/remote";
 
 // Create an OpenAI API client (that's edge friendly!)
 const openai = new OpenAI({
@@ -23,6 +23,13 @@ export async function POST(req: Request) {
     stream: true,
     messages: messages
   })
+  // console.log(
+  //   '******************************************************************'
+  // )
+  // console.log('response', response)
+  // console.log(
+  //   '******************************************************************'
+  // )
 
   try {
     const payload = {
@@ -33,7 +40,7 @@ export async function POST(req: Request) {
                       "kwargs": {}
                     }
 
-    const fetchresponse = await fetch('http://127.0.0.1:8000/joke/invoke', {
+    const fetchresponse = await fetch('http://127.0.0.1:8000/joke/stream', {
       method: 'POST', // or 'PUT'
       headers: {
         'Content-Type': 'application/json'
@@ -47,10 +54,10 @@ export async function POST(req: Request) {
       )
     }
 
-    console.log('response', fetchresponse.json())
-    console.log(
-        '******************************************************************'
-      )
+    // console.log('response', fetchresponse.json())
+    // console.log(
+    //     '******************************************************************'
+    //   )
       //const textResponse = await response.text()
 
       // It is expected a text response from the server
@@ -65,6 +72,22 @@ export async function POST(req: Request) {
     } catch (err) {
       console.error(err)
     }
+
+    try {
+      const chain = new RemoteRunnable({
+        url: `http://127.0.0.1:8000/joke/`,
+      });
+      const result = await chain.invoke({
+        topic: "cats",
+      });
+
+      console.log('result Runnable', result)
+      
+    } catch (error) {
+      console.error(error);
+    }
+
+
   // Convert the response into a friendly text-stream
   const stream = OpenAIStream(response, {
     onStart: async () => {
@@ -77,7 +100,7 @@ export async function POST(req: Request) {
       console.log('Stream completed', completion)
     },
     onToken: async (token: any) => {
-      console.log('Token received', token)
+      // console.log('Token received', token)
     }
   })
   // Respond with the stream
