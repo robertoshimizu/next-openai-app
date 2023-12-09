@@ -7,7 +7,7 @@ export default function Chat() {
     api: '/api/chat-with-vision',
   });
   return (
-    <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
+    <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch bg-slate-100">
       {messages.length > 0
         ? messages.map(m => (
             <div key={m.id} className="whitespace-pre-wrap">
