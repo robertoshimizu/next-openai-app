@@ -11,11 +11,67 @@ const openai = new OpenAI({
 // IMPORTANT! Set the runtime to edge
 export const runtime = 'edge'
 
+type InputObject = {
+  role: 'user' | 'assistant' | 'system' | 'function';
+  content: string;
+};
+
+type OutputObject = {
+  input: Array<{ content: string; type: 'human' | 'ai' | 'system' | 'function' }>;
+  config: Record<string, unknown>;
+  kwargs: Record<string, unknown>;
+};
+
+function adaptObjects(inputArray: InputObject[]): OutputObject {
+  const output = inputArray.map(item => {
+    let type: 'human' | 'ai' | 'system' | 'function';
+    switch (item.role) {
+      case 'user':
+        type = 'human';
+        break;
+      case 'assistant':
+        type = 'ai';
+        break;
+      case 'system':
+        type = 'system';
+        break;
+      case 'function':
+        type = 'function';
+        break;
+      default:
+        throw new Error(`Unknown role: ${item.role}`);
+    }
+    return { content: item.content, type };
+  });
+
+  return {
+    input: output,
+    config: {},
+    kwargs: {}
+  };
+}
+
+// Example usage
+const input = [
+  { role: 'user', content: 'ola' },
+  { role: 'assistant', content: 'Olá! Como posso ajudar você hoje?' },
+  { role: 'user', content: 'Conte uma piada' }
+];
+
+
+
+
 
 
 export async function POST(req: Request) {
   // Extract the `prompt` from the body of the request
   const { messages } = await req.json()
+
+//   Messages:  [
+//   { role: 'user', content: 'ola' },
+//   { role: 'assistant', content: 'Olá! Como posso ajudar você hoje?' },
+//   { role: 'user', content: 'Conte uma piada' }
+// ]
 
   // Ask OpenAI for a streaming chat completion given the prompt
   const response = await openai.chat.completions.create({
@@ -32,33 +88,41 @@ export async function POST(req: Request) {
   // )
 
   try {
+
+    // console.log(adaptObjects(messages));
     // const payload = {
-    //                   "input": {
-    //                     "topic": "Snow White"
-    //                   },
+    //                   "input": [
+    //                       {
+    //                           "content": "que eh Jack Sparrow?",
+    //                           "type": "human"
+    //                       }
+    //                   ],
     //                   "config": {},
     //                   "kwargs": {}
     //                 }
+    const payload = adaptObjects(messages)
 
-    // const fetchresponse = await fetch('http://127.0.0.1:8000/joke/stream', {
-    //   method: 'POST', // or 'PUT'
-    //   headers: {
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(payload)
-    // })
+    const fetchresponse = await fetch('http://127.0.0.1:8000/openai/invoke', {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
 
-    // if (!fetchresponse.ok) {
-    //   throw new Error(
-    //     'HTTP status ' + fetchresponse.status + ' - ' + fetchresponse.statusText
-    //   )
-    // }
+    if (!fetchresponse.ok) {
+      throw new Error(
+        'HTTP status ' + fetchresponse.status + ' - ' + fetchresponse.statusText
+      )
+    }
 
     // console.log('response', fetchresponse.json())
     // console.log(
     //     '******************************************************************'
     //   )
-      //const textResponse = await response.text()
+    const textResponse = await fetchresponse.text()
+
+    console.log('textResponse', textResponse)
 
       // It is expected a text response from the server
       //const responseObj = new Response(textResponse)
