@@ -60,30 +60,6 @@ const input = [
 ];
 
 
-function parseFetchStream(): AIStreamParser {
-  let previous = '';
- 
-  return data => {
-    const json = JSON.parse(data) as {
-      completion: string;
-      stop: string | null;
-      stop_reason: string | null;
-      truncated: boolean;
-      log_id: string;
-      model: string;
-      exception: string | null;
-    };
- 
-    // Anthropic's `completion` field is cumulative unlike OpenAI's
-    // deltas. In order to compute the delta, we must slice out the text
-    // we previously received.
-    const text = json.completion;
-    const delta = text.slice(previous.length);
-    previous = text;
- 
-    return delta;
-  };
-}
 
 type AIStreamChunk = {
     content: string;
@@ -93,6 +69,7 @@ type AIStreamChunk = {
 };
 
 function customParser(): (chunk: string) => { completion: string, token: string } | void  {
+    // @ts-ignore
     return (chunk: string) => {
         try {
             // Parse the chunk as JSON
@@ -103,14 +80,8 @@ function customParser(): (chunk: string) => { completion: string, token: string 
                 // Extract the message content
                 const messageContent = parsedChunk.content;
 
-                // Process the message content (e.g., log it or append it to a variable)
-                console.log('pasring: ',messageContent);
-
                 // Return the relevant data for the callbacks
-                return {
-                    completion: messageContent, // The full content up to this point
-                    token: messageContent // The new content (delta) in this chunk
-                };
+                return messageContent
             }
         } catch (error) {
             console.error('Error parsing chunk:', error);
@@ -118,47 +89,6 @@ function customParser(): (chunk: string) => { completion: string, token: string 
         }
     };
 }
-
-// type AIStreamEvent = {
-//     event: string;
-//     data: string;
-// };
-
-// function customParser(): (chunk: string) => void | string {
-//     let currentMessage = '';
-
-//     return function(chunk: string): void | string {
-//         console.log('chunk', chunk)
-        
-//         const event: AIStreamEvent = JSON.parse(chunk);
-
-//         console.log('évent', event)
-
-//         switch (event.event) {
-//             case 'metadata':
-//                 // Handle metadata if needed
-//                 break;
-
-//             case 'data':
-//                 // Extract content from the data event
-//                 const data = JSON.parse(event.data);
-//                 if (data.type === 'AIMessageChunk') {
-//                     currentMessage += data.content;
-//                 }
-//                 break;
-
-//             case 'end':
-//                 // Return the complete message when the end event is received
-//                 const finalMessage = currentMessage;
-//                 currentMessage = ''; // Reset for next message
-//                 return finalMessage;
-
-//             default:
-//                 // Handle other event types or errors if necessary
-//                 break;
-//         }
-//     };
-// }
 
 function FetchStream(
   res: Response,
@@ -185,20 +115,12 @@ export async function POST(req: Request) {
   //   stream: true,
   //   messages: messages
   // })
-  // console.log(
-  //   '******************************************************************'
-  // )
-  // console.log('response', response)
-  // console.log(
-  //   '******************************************************************'
-  // )
+
 
   const payload = adaptObjects(messages)
   let fetchResponse: any;
 
-  
 
-    // console.log(adaptObjects(messages));
     // const payload = {
     //                   "input": [
     //                       {
@@ -227,23 +149,7 @@ export async function POST(req: Request) {
     )
   }
 
-  // console.log('response', fetchresponse.json())
-  // console.log(
-  //     '******************************************************************'
-  //   )
-  //const textResponse = await fetchResponse.text()
-  //console.log('fetchresponse', fetchresponse.body)
-
-  //console.log('textResponse', textResponse)
-
-    // It is expected a text response from the server
-    //const responseObj = new Response(textResponse)
-
-    //const stream = AIStream(response)
-
-    // Convert the response into a friendly text-stream
-    //const stream = OStream(response)
-    //console.log('stream', stream)
+  
   const fetchStream = FetchStream(fetchResponse, {
     onStart: async () => {
       console.log('Stream started');
@@ -295,11 +201,6 @@ export async function POST(req: Request) {
   //   }
   // })
   // Respond with the stream
-
-  
-
-  
-
 
   return new StreamingTextResponse(fetchStream)
 }
