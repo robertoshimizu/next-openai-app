@@ -1,6 +1,9 @@
 // ./app/api/chat-with-fastapi/route.ts
+import OpenAI from 'openai'
+import { AIStream, StreamingTextResponse } from 'ai'
+import { type AIStreamCallbacksAndOptions } from 'ai';
+import { RemoteRunnable } from "langchain/runnables/remote";
 
-import { AIStream, StreamingTextResponse, type AIStreamCallbacksAndOptions } from 'ai'
 
 
 // IMPORTANT! Set the runtime to edge
@@ -104,9 +107,8 @@ export async function POST(req: Request) {
 // ]
 
 
-
   const payload = adaptObjects(messages)
-  let fetchResponse: Response;
+
 
 
     // const payload = {
@@ -123,35 +125,33 @@ export async function POST(req: Request) {
 
     // Now using streams
 
-  fetchResponse = await fetch('http://127.0.0.1:8000/openai/stream', {
-    method: 'POST', 
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  })
-
-  if (!fetchResponse.ok) {
-    throw new Error(
-      'HTTP status ' + fetchResponse.status + ' - ' + fetchResponse.statusText
-    )
+  const chain = new RemoteRunnable({
+    url: `http://127.0.0.1:8000/openai/`,
+  });
+  const fetchResponse = await chain.stream(JSON.stringify(payload));
+  let fetchStream:any
+  for await (const chunk of fetchResponse) {
+      fetchStream = FetchStream(chunk as Response, {
+      onStart: async () => {
+        console.log('Stream started');
+      },
+      onCompletion: async completion => {
+        console.log('Completion completed', completion);
+      },
+      onFinal: async completion => {
+        console.log('Stream completed', completion);
+      },
+      onToken: async token => {
+        console.log('Token received', token);
+      },
+    });
   }
+  return new StreamingTextResponse(fetchStream)
+  
+  
+      
+      
+ 
 
   
-  const fetchStream = FetchStream(fetchResponse, {
-    onStart: async () => {
-      console.log('Stream started');
-    },
-    onCompletion: async completion => {
-      console.log('Completion completed', completion);
-    },
-    onFinal: async completion => {
-      console.log('Stream completed', completion);
-    },
-    onToken: async token => {
-      console.log('Token received', token);
-    },
-  });
-      
-  return new StreamingTextResponse(fetchStream)
 }
