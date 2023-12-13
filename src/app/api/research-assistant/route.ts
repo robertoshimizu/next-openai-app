@@ -1,9 +1,5 @@
 // ./app/api/chat-with-fastapi/route.ts
-import OpenAI from 'openai'
-import { AIStream, StreamingTextResponse } from 'ai'
-import { type AIStreamCallbacksAndOptions } from 'ai';
-import { RemoteRunnable } from "langchain/runnables/remote";
-
+import { AIStream, StreamingTextResponse, type AIStreamCallbacksAndOptions  } from 'ai'
 
 
 // IMPORTANT! Set the runtime to edge

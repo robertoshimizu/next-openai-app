@@ -30,3 +30,19 @@ Output:
   }
 }
 ```
+
+# Models with No Memory
+
+The api `chat-with-fastapi` converses with the `intelli_server` langserve back end.
+It deals with the most basic endpoint:
+
+```python
+add_routes(
+    app,
+    ChatOpenAI(),
+    path="/openai",
+)
+```
+
+The `messages` object in the `useChat`, contains all outstanding messages, and it contains memory. However, it consumes too much tokens, and it eventually exceeds the token limit size of the LLM model. 
+So, there is a variant, that adatps and sends only the last message, so the python backend then needs to manage it. For that, the end point is `path="/openai-with-tools"`, where we also add functions.

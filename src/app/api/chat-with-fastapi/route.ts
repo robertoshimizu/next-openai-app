@@ -17,7 +17,10 @@ type OutputObject = {
   kwargs: Record<string, unknown>;
 };
 
-function adaptObjects(inputArray: InputObject[]): OutputObject {
+// This function is used to adapt the input array of messages to the format expected by the AI API.
+// So it carries all the messages outstanding in the conversation.
+// At some point it may exceed the max size of tokens allowed by model.
+function adaptObjectsWithMemory(inputArray: InputObject[]): OutputObject {
   const output = inputArray.map(item => {
     let type: 'human' | 'ai' | 'system' | 'function';
     switch (item.role) {
@@ -41,6 +44,29 @@ function adaptObjects(inputArray: InputObject[]): OutputObject {
 
   return {
     input: output,
+    config: {},
+    kwargs: {}
+  };
+}
+
+// This function is used to adapt the last message to the format expected by the AI API.
+// So it carries only the last message in the conversation.
+// It leaves to the python backend to manage the memory of the conversation.
+function adaptObjectsNoMemory(inputArray: InputObject[]): Record<string, any> {
+  let mostRecentHumanMessage = null;
+  for (let i = inputArray.length - 1; i >= 0; i--) {
+    if (inputArray[i].role === 'user') {
+      mostRecentHumanMessage = { content: inputArray[i].content, type: 'human' };
+      break;
+    }
+  }
+
+  if (!mostRecentHumanMessage) {
+    throw new Error('No human (user) type message found in the input array');
+  }
+
+  return {
+    input: [mostRecentHumanMessage],
     config: {},
     kwargs: {}
   };
@@ -104,8 +130,10 @@ export async function POST(req: Request) {
 // ]
 
 
+// Choose between the two options below:
+  const payload = adaptObjectsNoMemory(messages)
+  //const payload = adaptObjectsWithMemory(messages)
 
-  const payload = adaptObjects(messages)
   let fetchResponse: Response;
 
 
@@ -123,7 +151,11 @@ export async function POST(req: Request) {
 
     // Now using streams
 
-  fetchResponse = await fetch('http://127.0.0.1:8000/openai/stream', {
+  //const url = 'http://127.0.0.1:8000/openai/stream' // no memory
+  const url = 'http://127.0.0.1:8000/openai-with-tools/stream' // with memory and tools
+
+
+  fetchResponse = await fetch(url, {
     method: 'POST', 
     headers: {
       'Content-Type': 'application/json'
