@@ -46,3 +46,10 @@ add_routes(
 
 The `messages` object in the `useChat`, contains all outstanding messages, and it contains memory. However, it consumes too much tokens, and it eventually exceeds the token limit size of the LLM model. 
 So, there is a variant, that adatps and sends only the last message, so the python backend then needs to manage it. For that, the end point is `path="/openai-with-tools"`, where we also add functions.
+
+# Requirements
+
+
+1- Agnostic to LLM Models. 
+2- Common interface. Today, the parser is beskpoke to `ChatOpenAI()` output. But it must be common to all, `ChatAnthropic()`, etc
+3- It would be nice to receive stream of `intermediate steps` to let customer knowing what is happening
