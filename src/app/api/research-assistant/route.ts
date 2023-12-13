@@ -20,34 +20,61 @@ type OutputObject = {
   kwargs: Record<string, unknown>;
 };
 
-function adaptObjects(inputArray: InputObject[]): OutputObject {
-  const output = inputArray.map(item => {
-    let type: 'human' | 'ai' | 'system' | 'function';
-    switch (item.role) {
-      case 'user':
-        type = 'human';
-        break;
-      case 'assistant':
-        type = 'ai';
-        break;
-      case 'system':
-        type = 'system';
-        break;
-      case 'function':
-        type = 'function';
-        break;
-      default:
-        throw new Error(`Unknown role: ${item.role}`);
+// function adaptObjects(inputArray: InputObject[]): OutputObject {
+//   const output = inputArray.map(item => {
+//     let type: 'human' | 'ai' | 'system' | 'function';
+//     switch (item.role) {
+//       case 'user':
+//         type = 'human';
+//         break;
+//       case 'assistant':
+//         type = 'ai';
+//         break;
+//       case 'system':
+//         type = 'system';
+//         break;
+//       case 'function':
+//         type = 'function';
+//         break;
+//       default:
+//         throw new Error(`Unknown role: ${item.role}`);
+//     }
+//     return { content: item.content, type };
+//   });
+
+//   return {
+//     input: output,
+//     config: {},
+//     kwargs: {}
+//   };
+// }
+function adaptObjects(inputArray: InputObject[]): Record<string, any> {
+  let mostRecentHumanContent = '';
+  for (let i = inputArray.length - 1; i >= 0; i--) {
+    if (inputArray[i].role === 'user') {
+      mostRecentHumanContent = inputArray[i].content;
+      break;
     }
-    return { content: item.content, type };
-  });
+  }
+
+  if (mostRecentHumanContent === '') {
+    throw new Error('No human (user) type message found in the input array');
+  }
 
   return {
-    input: output,
-    config: {},
+    input: {
+      question: mostRecentHumanContent
+    },
+    config: {
+      configurable: {
+        report_type: "research_report",
+        search_engine: "tavily"
+      }
+    },
     kwargs: {}
   };
 }
+
 
 // Example usage
 const input = [
@@ -59,31 +86,18 @@ const input = [
 
 
 type AIStreamChunk = {
-    content: string;
-    additional_kwargs: any;
-    type: string;
-    example: boolean;
+  event: string;
+  data: string;
 };
 
 function customParser(): (chunk: string) => { completion: string, token: string } | void  {
     // @ts-ignore
     return (chunk: string) => {
-        try {
-            // Parse the chunk as JSON
-            const parsedChunk: AIStreamChunk = JSON.parse(chunk);
-
-            // Check if the chunk is of type 'AIMessageChunk'
-            if (parsedChunk.type === 'AIMessageChunk') {
-                // Extract the message content
-                const messageContent = parsedChunk.content;
-
-                // Return the relevant data for the callbacks
-                return messageContent
-            }
-        } catch (error) {
-            console.error('Error parsing chunk:', error);
-            // Handle parsing error or invalid chunk format
-        }
+        const parsedChunk: any = JSON.parse(chunk);
+        //console.log('Chunk:', parsedChunk);
+        const messageContent = parsedChunk
+        return messageContent;
+        
     };
 }
 
@@ -113,13 +127,15 @@ export async function POST(req: Request) {
 
 
     // const payload = {
-    //                   "input": [
-    //                       {
-    //                           "content": "que eh Jack Sparrow?",
-    //                           "type": "human"
-    //                       }
-    //                   ],
-    //                   "config": {},
+    //                   "input": {
+    //                     "question": "Que é Bono Vox?"
+    //                   },
+    //                   "config": {
+    //                     "configurable": {
+    //                       "report_type": "research_report",
+    //                       "search_engine": "tavily"
+    //                     }
+    //                   },
     //                   "kwargs": {}
     //                 }
     

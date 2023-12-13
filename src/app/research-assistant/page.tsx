@@ -4,7 +4,7 @@ import { useChat } from 'ai/react';
 
 export default function FastAPIChat() {
   const { messages, input, handleInputChange, handleSubmit, data } = useChat({
-    api: '/api/chat-with-langserve',
+    api: '/api/research-assistant',
   });
   return (
     <div className="flex flex-col w-full max-w-md py-24 mx-auto stretch">
