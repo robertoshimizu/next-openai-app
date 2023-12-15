@@ -1,15 +1,14 @@
 'use server';
 
 import {
-  JSONValue,
   Message,
   OpenAIStream,
   experimental_StreamData,
   experimental_StreamingReactResponse,
 } from 'ai';
+import { experimental_buildOpenAIMessages } from 'ai/prompts';
 import OpenAI from 'openai';
 import { ChatCompletionCreateParams } from 'openai/resources/chat';
-import { asOpenAIMessages } from './asOpenAIMessages';
 
 const functions: ChatCompletionCreateParams.Function[] = [
   {
@@ -59,7 +58,7 @@ export async function handler({ messages }: { messages: Message[] }) {
   const response = await openai.chat.completions.create({
     model: 'gpt-3.5-turbo',
     stream: true,
-    messages: asOpenAIMessages(messages),
+    messages: experimental_buildOpenAIMessages(messages),
     functions,
   });
 
@@ -108,7 +107,7 @@ export async function handler({ messages }: { messages: Message[] }) {
   return new experimental_StreamingReactResponse(stream, {
     data,
     ui({ content, data }) {
-      if (data != null) {
+      if (data?.[0] != null) {
         const value = data[0] as any;
 
         switch (value.type) {
