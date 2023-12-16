@@ -1,7 +1,8 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+
 
 
 export default function Chat() {
@@ -9,8 +10,9 @@ export default function Chat() {
     api: '/api/chat-with-vision',
   });
   const [selectedFile, setSelectedFile] = useState('');
+  const fileInput = useRef(null);
 
-  function handleFileInput(e) {
+  function handleFileInput(e:any) {
     setSelectedFile(e.target.files[0]);
   }
 
@@ -25,7 +27,7 @@ export default function Chat() {
               id="avatar" name="avatar"
               multiple={true} 
               value={selectedFile}
-              onChange={(e) => setSelectedFile(e.target.files[0])} 
+              onChange={(e:any) => setSelectedFile(e.target.files[0])} 
               type="file" 
               tabIndex={-1} 
               className="hidden" 
@@ -67,15 +69,16 @@ export default function Chat() {
               </div>
             </button>
             <input
-              id="fileInput" 
-              name="fileInput"
-              multiple={true} 
-              value={selectedFile}
-              onChange={handleFileInput} 
-              type="file" 
-              tabIndex={-1} 
-              className="hidden" 
-               />
+      ref={fileInput}
+      id="fileInput" 
+      name="fileInput"
+      multiple={true} 
+      value={selectedFile}
+      onChange={handleFileInput} 
+      type="file" 
+      tabIndex={-1} 
+      className="hidden" 
+    />
             
           </div>
         </div>
@@ -85,7 +88,7 @@ export default function Chat() {
           placeholder="What does the image show..."
           onChange={handleInputChange}
         />
-        <button className='absolute bottom-2 md:bottom-4 md:right-1 dark:hover:bg-gray-900 dark:disabled:hover:bg-transparent right-2 dark:disabled:bg-white disabled:bg-black disabled:opacity-10 disabled:text-gray-400 enabled:bg-black text-white p-0.5 border border-black rounded-lg dark:border-white dark:bg-white  transition-colors'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white dark:text-black"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+        <button className='absolute bottom-2 md:bottom-4 md:right-1 dark:hover:bg-gray-900 dark:disabled:hover:bg-transparent right-2 dark:disabled:bg-white disabled:bg-black disabled:opacity-10 disabled:text-gray-400 enabled:bg-black text-white p-0.5 border border-black rounded-lg dark:border-white dark:bg-white  transition-colors'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white dark:text-black"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg></button>
         </div>
       </form>
     </div>
