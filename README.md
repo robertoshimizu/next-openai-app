@@ -53,3 +53,12 @@ So, there is a variant, that adatps and sends only the last message, so the pyth
 1- Agnostic to LLM Models. 
 2- Common interface. Today, the parser is beskpoke to `ChatOpenAI()` output. But it must be common to all, `ChatAnthropic()`, etc
 3- It would be nice to receive stream of `intermediate steps` to let customer knowing what is happening
+
+# Comments
+
+Fetch from fastapi is good for basic chat completions. However, when working with langchain's agent-executor or openai chat with functions, it does not stream. Because of the intermediate function call.
+It seems that Vercel AI SDK has this feature better resolved, therefore, it has decided to carry on with vercel/typescript.
+Potentially we can make an API server, exposing the `api/routes.ts`. Need to test it in postman. And then see how we can add security and a swagger.
+
+Nevertheless, we can add some python serverless functions in next.js/vercel.
+https://vercel.com/docs/functions/serverless-functions/runtimes/python
