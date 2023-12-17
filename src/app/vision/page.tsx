@@ -1,7 +1,7 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useState, useRef } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
 
 
 
@@ -9,30 +9,39 @@ export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit, data } = useChat({
     api: '/api/chat-with-vision',
   });
-  const [selectedFile, setSelectedFile] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File>();
   const fileInput = useRef(null);
 
-  function handleFileInput(e:any) {
-    setSelectedFile(e.target.files[0]);
+  
+  const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setSelectedFile(e.target.files[0]);
+      console.log(selectedFile);
+    }
+  };
+
+  const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+    handleInputChange(e);
+    console.log(input);
+  };
+
+  const sendFile = (e:any) => {
+          handleSubmit(e, {
+            data: {
+              imageUrl:
+                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg/733px-Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg',
+            },
+          });
   }
 
-  
+  const sendMessage = (e) => {
+    e.preventDefault();
+    console.log(e)
+    
+  }
 
   return (
     <div className="flex flex-col w-full max-w-xl py-24 mx-auto stretch bg-slate-100">
-      <div>
-        Teste form
-        <label htmlFor="avatar">Choose a profile picture:</label>
-        <input 
-              id="avatar" name="avatar"
-              multiple={true} 
-              value={selectedFile}
-              onChange={(e:any) => setSelectedFile(e.target.files[0])} 
-              type="file" 
-              tabIndex={-1} 
-              className="hidden" 
-               />
-      </div>
       {messages.length > 0
         ? messages.map(m => (
             <div key={m.id} className="whitespace-pre-wrap">
@@ -43,14 +52,7 @@ export default function Chat() {
         : null}
 
       <form
-        onSubmit={e => {
-          handleSubmit(e, {
-            data: {
-              imageUrl:
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg/733px-Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg',
-            },
-          });
-        }}
+        onSubmit={sendMessage}
       >
         <div className='fixed bottom-0 w-full max-w-xl mb-8 flex border rounded-sm shadow-lg border-gray-300 p-2'>
 
@@ -68,27 +70,31 @@ export default function Chat() {
                 </svg>
               </div>
             </button>
+            {/* This is the file input */}
             <input
-      ref={fileInput}
-      id="fileInput" 
-      name="fileInput"
-      multiple={true} 
-      value={selectedFile}
-      onChange={handleFileInput} 
-      type="file" 
-      tabIndex={-1} 
-      className="hidden" 
-    />
-            
+              ref={fileInput}
+              id="fileInput" 
+              name="fileInputa"
+              multiple={true} 
+              value={""}
+              onChange={handleFileInput} 
+              type="file" 
+              tabIndex={-1} 
+              className="hidden" 
+            />
           </div>
         </div>
         <input
           className=" py-2 mx-auto w-full max-w-lg "
           value={input}
           placeholder="What does the image show..."
-          onChange={handleInputChange}
+          onChange={handleTextChange}
         />
-        <button className='absolute bottom-2 md:bottom-4 md:right-1 dark:hover:bg-gray-900 dark:disabled:hover:bg-transparent right-2 dark:disabled:bg-white disabled:bg-black disabled:opacity-10 disabled:text-gray-400 enabled:bg-black text-white p-0.5 border border-black rounded-lg dark:border-white dark:bg-white  transition-colors'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white dark:text-black"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path></svg></button>
+        <button type='submit'
+          className='absolute bottom-2 md:bottom-4 md:right-1 dark:hover:bg-gray-900 dark:disabled:hover:bg-transparent right-2 dark:disabled:bg-white disabled:bg-black disabled:opacity-10 disabled:text-gray-400 enabled:bg-black text-white p-0.5 border border-black rounded-lg dark:border-white dark:bg-white  transition-colors'>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white dark:text-black"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+            </svg>
+        </button>
         </div>
       </form>
     </div>
