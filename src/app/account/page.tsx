@@ -1,6 +1,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
-import { Database } from '@/app/types/supabase'
+import type { Database } from '@/app/types/supabase';
 import AccountForm from './account-form'
 
 export default async function Account() {
@@ -13,12 +13,6 @@ export default async function Account() {
   return (
     <div className="mx-auto w-full max-w-md py-24 flex flex-col stretch">
       <AccountForm session={session} />
-      
-
     </div>
-
   )
 }
-
-
-
