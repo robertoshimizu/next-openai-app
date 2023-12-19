@@ -88,12 +88,13 @@ export async function POST(req: Request) {
     onFinal(completion) {
       data.close();
     },
-    experimental_streamData: true,
+    // Send the response in chunks
+    experimental_streamData: false,
   });
 
   data.append({
     text: 'Hello, how are you?',
   });
 
-  return new StreamingTextResponse(stream, {}, data);
+  return new StreamingTextResponse(stream);
 }

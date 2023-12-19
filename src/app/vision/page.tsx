@@ -1,36 +1,63 @@
 'use client';
 
 import { useChat } from 'ai/react';
-import { useState } from 'react';
+import { useState, useRef, ChangeEvent } from 'react';
+
 
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit, data } = useChat({
     api: '/api/chat-with-vision',
   });
-  const [selectedFile, setSelectedFile] = useState('');
-
-  function handleFileInput(e) {
-    setSelectedFile(e.target.files[0]);
-  }
+  const [selectedFile, setSelectedFile] = useState<File>();
+  //const [input, handleInputChange] = useState('');  AI SDK useChat has already a hook for it
+  const fileInputRef = useRef(null);
 
   
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    // @ts-ignore
+    console.log("File selected:", e.target.files[0]);
+    // @ts-ignore
+    setSelectedFile(e.target.files[0]);
+    
+  };
+
+  const handleTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+    
+    handleInputChange(e);
+    console.log(input);
+  };
+
+  const handleFileChangeClick = () => {
+    // @ts-ignore
+    fileInputRef.current.click();
+  };
+
+  const sendMessage = async (e: any) => {
+    e.preventDefault();
+    console.log(e)
+
+    // Create a FormData object
+    const formData = new FormData();
+    // @ts-ignore
+    formData.append('file', selectedFile);
+    formData.append('text', input);
+
+    console.log(formData);
+
+    // It uses GPT-4 Turbo with vision
+
+    handleSubmit(e, {
+      data: {
+        imageUrl:
+          'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg/733px-Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg',
+      },
+    });
+    
+  }
 
   return (
     <div className="flex flex-col w-full max-w-xl py-24 mx-auto stretch bg-slate-100">
-      <div>
-        Teste form
-        <label htmlFor="avatar">Choose a profile picture:</label>
-        <input 
-              id="avatar" name="avatar"
-              multiple={true} 
-              value={selectedFile}
-              onChange={(e) => setSelectedFile(e.target.files[0])} 
-              type="file" 
-              tabIndex={-1} 
-              className="hidden" 
-               />
-      </div>
       {messages.length > 0
         ? messages.map(m => (
             <div key={m.id} className="whitespace-pre-wrap">
@@ -41,20 +68,13 @@ export default function Chat() {
         : null}
 
       <form
-        onSubmit={e => {
-          handleSubmit(e, {
-            data: {
-              imageUrl:
-                'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg/733px-Field_sparrow_in_CP_%2841484%29_%28cropped%29.jpg',
-            },
-          });
-        }}
+        onSubmit={sendMessage}
       >
         <div className='fixed bottom-0 w-full max-w-xl mb-8 flex border rounded-sm shadow-lg border-gray-300 p-2'>
 
         <div className="absolute bottom-2 md:bottom-4 left-1 md:left-1">
           <div className="flex">
-            <button onClick={e => fileInput.current && fileInput.current.click()} className="btn relative p-0 text-black dark:text-white" aria-label="Attach files">
+            <div onClick={handleFileChangeClick} className="btn relative p-0 text-black dark:text-white" aria-label="Attach files">
               <div className="flex w-full gap-2 items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path
@@ -65,27 +85,31 @@ export default function Chat() {
                   ></path>
                 </svg>
               </div>
-            </button>
+            </div>
+            {/* This is the file input */}
             <input
+              ref={fileInputRef}
               id="fileInput" 
-              name="fileInput"
+              name="fileInputa"
               multiple={true} 
-              value={selectedFile}
-              onChange={handleFileInput} 
+              onChange={handleFileChange} 
               type="file" 
               tabIndex={-1} 
               className="hidden" 
-               />
-            
+            />
           </div>
         </div>
         <input
           className=" py-2 mx-auto w-full max-w-lg "
           value={input}
           placeholder="What does the image show..."
-          onChange={handleInputChange}
+          onChange={handleTextChange}
         />
-        <button className='absolute bottom-2 md:bottom-4 md:right-1 dark:hover:bg-gray-900 dark:disabled:hover:bg-transparent right-2 dark:disabled:bg-white disabled:bg-black disabled:opacity-10 disabled:text-gray-400 enabled:bg-black text-white p-0.5 border border-black rounded-lg dark:border-white dark:bg-white  transition-colors'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white dark:text-black"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+        <button type='submit'
+          className='absolute bottom-2 md:bottom-4 md:right-1 dark:hover:bg-gray-900 dark:disabled:hover:bg-transparent right-2 dark:disabled:bg-white disabled:bg-black disabled:opacity-10 disabled:text-gray-400 enabled:bg-black text-white p-0.5 border border-black rounded-lg dark:border-white dark:bg-white  transition-colors'>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-white dark:text-black"><path d="M7 11L12 6L17 11M12 18V7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+            </svg>
+        </button>
         </div>
       </form>
     </div>
