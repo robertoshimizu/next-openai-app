@@ -1,13 +1,18 @@
 'use client'
 import { Auth } from '@supabase/auth-ui-react'
 import { ThemeSupa } from '@supabase/auth-ui-shared'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
-import { Database } from '@/app/types/supabase'
 import { getURL } from '../utils/helpers'
 import Logo from '@/components/icons/Logo'
+import { useSupabase } from '../supabase-provider'
 
 export default function AuthForm() {
-  const supabase = createClientComponentClient<Database>()
+  const { supabase } = useSupabase();
+
+  if (supabase) {
+    console.log('Supabase client initialized ...')
+  }
+
+  console.log('getURL', getURL())
 
   return (
     <div className="flex justify-center height-screen-helper">
@@ -20,7 +25,7 @@ export default function AuthForm() {
         supabaseClient={supabase}
         providers={['google', 'facebook', 'apple']}
         redirectTo={`${getURL()}/auth/callback`}
-        magicLink={true}
+        magicLink={false}
         appearance={{
           theme: ThemeSupa,
           variables: {
