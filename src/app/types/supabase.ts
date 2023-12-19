@@ -9,21 +9,6 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
-      botes: {
-        Row: {
-          id: number
-          title: string | null
-        }
-        Insert: {
-          id?: number
-          title?: string | null
-        }
-        Update: {
-          id?: number
-          title?: string | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
