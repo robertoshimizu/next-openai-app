@@ -15,9 +15,9 @@ export default function AuthForm() {
   return (
     <Auth
         supabaseClient={supabase}
-        providers={['google', 'facebook', 'apple']}
+        providers={['google', 'github']}
         redirectTo={`${getURL()}/auth/callback`}
-        magicLink={false}
+        magicLink={true}
         appearance={{
           theme: ThemeSupa,
           variables: {
@@ -30,6 +30,9 @@ export default function AuthForm() {
           }
         }}
         theme="dark"
+        otpType='email'
+        onlyThirdPartyProviders={false}
+    
       />
   )
 }
